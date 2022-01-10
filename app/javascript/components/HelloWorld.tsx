@@ -1,16 +1,12 @@
 import React from "react"
-import PropTypes from "prop-types"
-class HelloWorld extends React.Component {
-  render () {
-    return (
-      <React.Fragment>
-        Greeting: {this.props.greeting}
-      </React.Fragment>
-    );
-  }
+
+type Props = {
+  greeting: string
 }
 
-HelloWorld.propTypes = {
-  greeting: PropTypes.string
-};
+const HelloWorld: React.VFC<Props> = ({ greeting }) => {
+  return <div>
+    Greetingts: {greeting}
+  </div>
+}
 export default HelloWorld
