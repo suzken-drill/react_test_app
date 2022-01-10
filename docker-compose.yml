@@ -1,0 +1,49 @@
+version: '3'
+services:
+  db:
+    # image: mysql:5.7
+    build:
+      context: ./docker/db
+    command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --default-time-zone=Asia/Tokyo
+    # command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    environment:
+      # MYSQL_ROOT_PASSWORD: shopreview555
+      MYSQL_ROOT_PASSWORD: root
+      # MYSQL_USER: shopreview
+      # MYSQL_PASSWORD: shopreview2021
+      MYSQL_USER: docker
+      MYSQL_PASSWORD: docker
+      TZ: 'Asia/Tokyo'
+    volumes:
+      - ./docker/db/data:/var/tmp
+      - db-data:/var/lib/mysql
+      - ./docker/db/sql:/docker-entrypoint-initdb.d
+  nginx:
+    build:
+      context: ./docker/nginx
+    volumes:
+      - public-data:/react_test_app/public
+      - tmp-data:/react_test_app/tmp
+    ports:
+      - 80:80
+    depends_on:
+      - web
+  web:
+    build: .
+    command: bash -c "/etc/init.d/cron start && rm -f tmp/pids/server.pid && bundle exec puma -C config/puma.rb"
+    # command: bash -c "/etc/init.d/cron start && rm -f tmp/pids/server.pid && bundle exec puma -e production -C config/puma.rb && whenever --update-crontab"
+    environment:
+      TZ: Asia/Tokyo
+    volumes:
+      - .:/react_test_app
+      - public-data:/react_test_app/public
+      - tmp-data:/react_test_app/tmp
+      - log-data:/react_test_app/log
+      # - bundler
+    depends_on:
+      - db
+volumes:
+  public-data:
+  tmp-data:
+  log-data:
+  db-data:
